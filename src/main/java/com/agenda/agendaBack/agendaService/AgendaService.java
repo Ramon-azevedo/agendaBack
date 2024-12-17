@@ -24,9 +24,10 @@ public class AgendaService {
     public ResponseEntity<?> putAgenda(Long id, Agenda agenda) {
         Optional<Agenda> itemExistente = agendaRepository.findById(id);
 
-        if (itemExistente.isPresent()) { // Set the ID of the agenda to avoid overwriting the existing entity
-            agendaRepository.save(agenda);
-            return ResponseEntity.ok().build();
+        if (itemExistente.isPresent()) {
+            agenda.setId(id);
+            Agenda itemAtualizado = agendaRepository.save(agenda);
+            return ResponseEntity.ok(itemAtualizado);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item não encontrado!");
         }
@@ -34,8 +35,14 @@ public class AgendaService {
 
     // Delete Agenda
     public ResponseEntity<?> deleteAgenda(Long id) {
-        agendaRepository.deleteById(id);
-        return ResponseEntity.ok("Item deletado com Sucesso!");
+        Optional<Agenda> itemExistente = agendaRepository.findById(id);
+
+        if (itemExistente.isPresent()) {
+            agendaRepository.deleteById(id);
+            return ResponseEntity.ok().body("{\"message\": \"Item deletado com sucesso!\"}"); // Retorno JSON
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Item não encontrado!\"}");
+        }
     }
 
 }
